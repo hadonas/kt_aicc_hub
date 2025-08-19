@@ -8,5 +8,5 @@
 ## 마이크로서비스
 LangGraph Agent: https://github.com/changhyeongHa/project03_model  
 데이터베이스: https://github.com/younyoungieo/rag-db-pipeline.git  
-STT and TTS: https://github.com/hadonas/kt_project_stt_tts
+STT and TTS: https://github.com/hadonas/kt_project_stt_tts  
 프론트엔드: https://github.com/hadonas/kt_project_frontend
