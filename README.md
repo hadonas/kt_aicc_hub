@@ -9,3 +9,4 @@
 LangGraph Agent: https://github.com/changhyeongHa/project03_model  
 데이터베이스: https://github.com/younyoungieo/rag-db-pipeline.git  
 백엔드: https://github.com/hadonas/kt_project_backend  
+프론트엔드: https://github.com/hadonas/kt_project_frontend
