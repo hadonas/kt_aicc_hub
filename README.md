@@ -17,7 +17,7 @@
 
 ## 🏗️ 시스템 아키텍처
 
-> 💡 **시스템 아키텍처 다이어그램은 draw.io로 작성되어 별도 이미지로 제공됩니다.**
+![System Architecture](system_architecture.png)
 
 ## 🚀 구성 서비스
 
@@ -26,25 +26,11 @@
 - **목적**: 사용자 질문에 대한 AI 답변 생성 및 관련 문서 검색
 - **기술**: FastAPI, Azure OpenAI, MongoDB Atlas, LangChain
 
-#### 주요 API
-- `POST /qna`: 질문-답변 처리
-- `GET /health`: 서비스 상태 확인
-
 ### 2. **RAG Data Service** - 데이터 관리
 - **Repository**: [rag-data-service](https://github.com/younyoungieo/rag-data-service)
 - **목적**: PDF 문서를 처리하여 RAG 시스템을 위한 벡터 데이터베이스 구축
 - **기술**: Spring Boot 3.5.4, Java 21, MongoDB, Azure OpenAI
 - **배포**: Azure App Service for Containers
-
-#### 주요 API
-- `POST /api/v1/documents`: PDF 문서 업로드 및 벡터 처리
-- `GET /api/v1/health`: 서비스 상태 확인
-- `GET /actuator/health`: Spring Boot Actuator 헬스체크
-
-#### API 특징
-- **PDF 처리**: 최대 50MB PDF 지원, 텍스트 추출 및 청크 분할
-- **벡터 생성**: Azure OpenAI text-embedding-ada-002 모델 사용
-- **자동 처리**: PDF 다운로드 → 텍스트 추출 → 청크 분할 → 벡터 생성 → MongoDB 저장
 
 ### 3. **Frontend** - 사용자 인터페이스
 - **Repository**: [kt_project_frontend](https://github.com/hadonas/kt_project_frontend)
@@ -57,37 +43,13 @@
 - **기술**: FastAPI, Azure Neural Voice, 다국어 지원
 - **배포**: Azure App Service for Containers
 
-#### 주요 API
-- `GET /`: 서비스 루트 엔드포인트 - 기본 상태 확인
-- `GET /health`: 서비스 상태 확인 - Azure Speech 연결 테스트 포함
-- `POST /tts/convert`: 텍스트를 음성 파일로 변환 (WAV 파일 직접 반환)
-- `POST /tts/convert-json`: 텍스트를 음성으로 변환 (JSON 응답 형태)
-- `POST /tts/convert-rag-response`: ⭐ RAG 응답을 Multipart 형태로 변환 (JSON + WAV 동시 반환)
-- `POST /tts/convert-rag-response-file`: RAG 응답을 WAV 파일로 직접 다운로드
-
-#### API 특징
-- **Neural Voice**: Azure 최신 인공지능 음성 합성
-- **음성 커스터마이징**: 속도, 높낮이, 톤 세밀 조절 가능
-- **RAG 통합**: RAG 응답을 직접 음성으로 변환하는 전용 API
-- **고음질 출력**: 16kHz/24kHz WAV 형식 지원
-
 ### 5. **STT Service** - 음성 인식
 - **Repository**: [stt-service](https://github.com/changhyeongHa/stt-service)
 - **목적**: 사용자 음성 질문을 텍스트로 변환
 - **기술**: FastAPI, Azure Cognitive Services, 다국어 지원
 - **배포**: Azure App Service for Containers
 
-#### 주요 API
-- `POST /stt/convert`: 오디오 파일을 텍스트로 변환하는 메인 엔드포인트
-- `GET /health`: 서비스 상태 확인 - Azure Speech 연결 테스트 포함
-- `GET /docs`: 대화형 API 문서 (Swagger UI)
-- `GET /redoc`: 대안 API 문서 (ReDoc)
 
-#### API 특징
-- **고정밀 음성 인식**: Azure Neural Speech 엔진 활용
-- **실시간 처리**: 연속 음성 인식으로 긴 오디오도 빠르게 처리
-- **상세 결과**: 텍스트 + 세그먼트 + 신뢰도 정보
-- **고가용성**: Docker 컨테이너 기반 안정적 서비스
 
 ## 🛠️ 기술 스택
 
@@ -98,10 +60,73 @@
 | **AI/ML** | Azure OpenAI (GPT-4, text-embedding-ada-002) | 자연어 처리, 답변 생성, 벡터 임베딩 |
 | **Vector Database** | MongoDB Atlas | 벡터 검색 및 문서 저장 |
 | **Speech Services** | Azure Cognitive Services | STT/TTS 처리 |
-| **Frontend** | React + TypeScript | 사용자 인터페이스 |
+| **Frontend** | Next.js (React + TypeScript) | 풀스택 웹 프레임워크 및 사용자 인터페이스 |
 | **Container** | Docker | 서비스 컨테이너화 |
 | **Language** | Python 3.11+, Java 21 | 백엔드 서비스 |
 | **Runtime** | Uvicorn, JVM | ASGI 웹 서버, Java 런타임 |
+| **Monitoring** | Azure Monitor, Log Analytics | 중앙 집중식 모니터링 및 로그 분석 |
+
+## 🗄️ 데이터베이스 스키마
+
+📊 **데이터 구조**
+
+MongoDB는 두 개의 컬렉션으로 구성되어 있습니다. 자세한 스키마 정보는 [MongoDB 스키마 문서](./mongodb_schema.md)를 참조하세요:
+
+📋 **products 컬렉션 (상품 정보)**
+
+| 필드명 | 설명 | 예시 |
+|--------|------|------|
+| _id | 고유 식별자 | ObjectId |
+| product_group | 상품군 | "자동차보험-개인용" |
+| product_name | 상품명 | "한화다이렉트자동차보험" |
+| sale_period | 판매기간 | "2025.08.16~현재" |
+
+📄 **documents 컬렉션 (문서 청크)**
+
+| 필드명 | 설명 | 예시 |
+|--------|------|------|
+| _id | 고유 식별자 | ObjectId |
+| content | 텍스트 청크 내용 | "이 약관은 보험소비자의 권익보호..." |
+| embedding | 벡터 임베딩 | [0.123, -0.456, ...] |
+| source | PDF 파일명 | "한화다이렉트자동차보험_2025.08.16~현재_약관.pdf" |
+| page_number | 페이지 번호 | 1, 2, 3... |
+| chunk_index | 페이지 내 청크 순서 | 0, 1, 2... |
+| chunk_length | 청크 길이 (문자 수) | 331, 581, 706... |
+| product_id | 상품 참조 ID | ObjectId("products 컬렉션 참조") |
+| type | 문서타입 | "상품요약", "약관", "사업방법" |
+| download_link | 원본 문서 링크 | "https://www.hwgeneralins.com/..." |
+| created_at | 생성 시간 | ISODate("2025-01-XX") |
+
+
+
+### 📋 API 계약 명세 요약
+
+각 서비스의 주요 API 엔드포인트와 간단한 설명입니다. **상세한 API 계약 명세는 [api-contracts.md](./api-contracts.md)를 참조하세요.**
+
+#### 🧠 QnA Service
+- **GET /**: 서비스 상태 확인
+- **GET /health**: 상세 헬스체크
+- **POST /qna**: 질문-답변 처리 (RAG 기반 AI 답변 생성)
+
+#### 📚 RAG Data Service
+- **POST /api/v1/documents**: PDF 문서 업로드 및 벡터 처리
+- **GET /api/v1/health**: 서비스 상태 확인
+- **GET /actuator/health**: Spring Boot Actuator 헬스체크
+
+#### 🎤 TTS Service
+- **GET /, GET /health**: 서비스 상태 확인
+- **POST /tts/convert**: 텍스트를 WAV 파일로 변환
+- **POST /tts/convert-json**: JSON 응답 형태
+- **POST /tts/convert-rag-response**: RAG 응답을 Multipart 형태로 변환
+- **POST /tts/convert-rag-response-file**: RAG 응답을 WAV 파일로 직접 다운로드
+
+#### 🎧 STT Service
+- **POST /stt/convert**: 음성을 텍스트로 변환 (메인 엔드포인트)
+- **GET /health**: 서비스 상태 확인
+- **GET /docs, GET /redoc**: API 문서 (Swagger UI, ReDoc)
+
+
+```
 
 ## 📡 API 통합 예시
 
@@ -269,7 +294,6 @@ git clone https://github.com/changhyeongHa/stt-service.git stt-service
 - `AZURE_SPEECH_REGION`: Azure Speech Service 지역
 - `MONGODB_URI`: MongoDB Atlas 연결 문자열
 - `MONGODB_DB`: MongoDB 데이터베이스명 (예: insurance)
-- `MONGODB_COLLECTION`: MongoDB 컬렉션명 (예: documents)
 
 ## 📊 시스템 모니터링
 
