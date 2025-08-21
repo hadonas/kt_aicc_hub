@@ -72,6 +72,7 @@
 
 | 구분 | 기술 | 용도 |
 |------|------|------|
+| **API Gateway** | Azure API Management | API 라우팅, 인증, 모니터링 |
 | **Backend Framework** | FastAPI, Spring Boot | 마이크로서비스 API 서버 |
 | **AI/ML** | Azure OpenAI (GPT-4, text-embedding-ada-002) | 자연어 처리, 답변 생성, 벡터 임베딩 |
 | **Vector Database** | MongoDB Atlas | 벡터 검색 및 문서 저장 |
@@ -90,17 +91,24 @@
 sequenceDiagram
     participant U as User
     participant F as Frontend
+    participant APIM as API Management
     participant STT as STT Service
     participant QnA as QnA Service
+    participant AO as Azure OpenAI
+    participant M as MongoDB Atlas
     participant TTS as TTS Service
     
     U->>F: 음성으로 질문
-    F->>STT: 오디오 파일 전송
-    STT->>F: 텍스트 변환 결과
-    F->>QnA: 텍스트 질문 전송
-    QnA->>F: AI 답변 + 관련 문서
-    F->>TTS: 답변 텍스트 전송
-    TTS->>F: 음성 파일 생성
+    F->>APIM: 오디오 파일 전송
+    APIM->>STT: STT 서비스로 라우팅
+    STT->>QnA: 변환된 텍스트 전달
+    QnA->>M: 벡터 유사도 검색 요청
+    M->>QnA: 관련 문서 청크 반환
+    QnA->>AO: GPT-4 모델로 답변 생성 요청
+    AO->>QnA: AI 답변 반환
+    QnA->>TTS: AI 답변을 TTS로 직접 전달
+    TTS->>APIM: 음성 파일 반환
+    APIM->>F: 음성 파일 전달
     F->>U: 음성 답변 재생
 ```
 
@@ -109,12 +117,46 @@ sequenceDiagram
 sequenceDiagram
     participant U as User
     participant F as Frontend
+    participant APIM as API Management
     participant QnA as QnA Service
+    participant AO as Azure OpenAI
+    participant M as MongoDB Atlas
     
     U->>F: 텍스트로 질문 입력
-    F->>QnA: 텍스트 질문 전송
-    QnA->>F: AI 답변 + 관련 문서
+    F->>APIM: 텍스트 질문 전송
+    APIM->>QnA: QnA 서비스로 라우팅
+    QnA->>M: 벡터 유사도 검색 요청
+    M->>QnA: 관련 문서 청크 반환
+    QnA->>AO: GPT-4 모델로 답변 생성 요청
+    AO->>QnA: AI 답변 반환
+    QnA->>APIM: AI 답변 + 관련 문서
+    APIM->>F: 답변 전달
     F->>U: 텍스트 답변 표시
+```
+
+#### 3. 문서 추가 워크플로우
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant F as Frontend
+    participant APIM as API Management
+    participant RDS as RAG Data Service
+    participant AO as Azure OpenAI
+    participant M as MongoDB Atlas
+    participant QS as QnA Service
+    
+    A->>F: PDF 문서 URL + 메타데이터 입력
+    F->>APIM: 문서 추가 요청 전송
+    APIM->>RDS: RAG Data Service로 라우팅
+    RDS->>RDS: PDF 다운로드 및 텍스트 추출
+    RDS->>RDS: 텍스트 청크 분할
+    RDS->>AO: 각 청크의 벡터 임베딩 요청
+    AO->>RDS: 1536차원 벡터 반환
+    RDS->>M: 청크 + 벡터 + 메타데이터 저장
+    RDS->>APIM: 처리 완료 응답
+    APIM->>F: 결과 전달
+    F->>A: 처리 완료 알림
+    Note over QS: 이제 QnA Service에서<br/>새로운 문서 정보 검색 가능
 ```
 
 ### 📝 API 호출 예시
