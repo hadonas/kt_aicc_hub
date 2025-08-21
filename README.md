@@ -20,8 +20,13 @@
 ## 🚀 구성 서비스
 
 ### 1. **QnA Service** - 핵심 RAG 엔진
+<<<<<<< HEAD
 - **Repository**: [project03_model](https://github.com/changhyeongHa/project03_model)
 - **목적**: 사용자 질문에 대한 AI 답변 생성 및 관련 문서 검색
+=======
+- **Repository**: [project03_model](https://github.com/hadonas/project03_model)
+- **기능**: 사용자 질문에 대한 AI 답변 생성 및 관련 문서 검색
+>>>>>>> 1ad634307a704cc602221c5e92aa0ff367708203
 - **기술**: FastAPI, Azure OpenAI, MongoDB Atlas, LangChain
 
 #### 주요 API
