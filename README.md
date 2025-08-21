@@ -8,12 +8,26 @@
 
 **한화손해보험**을 고객사로 가정하여 구현한 사례로, 보험 상품 관련 상담을 지원하는 시스템입니다.
 
+## 📑 목차
+
+- [📋 시스템 개요](#-시스템-개요)
+- [🏗️ 시스템 아키텍처](#️-시스템-아키텍처)
+- [🚀 구성 서비스](#-구성-서비스)
+- [🛠️ 기술 스택](#️-기술-스택)
+- [🗄️ 데이터베이스 스키마](#️-데이터베이스-스키마)
+- [📋 API 계약 명세 요약](#-api-계약-명세-요약)
+- [📡 API 통합 예시](#-api-통합-예시)
+- [🚀 설치 및 실행](#-설치-및-실행)
+- [📊 시스템 모니터링](#-시스템-모니터링)
+- [📋 ADR (Architecture Decision Records)](#-adr-architecture-decision-records)
+- [📚 추가 문서](#-추가-문서)
+
 ### 🌟 핵심 특징
-- **🤖 RAG 기반 답변 생성**: 벡터 검색을 통한 정확한 보험 정보 제공
-- **🎤 음성 상담 지원**: STT(음성→텍스트) + TTS(텍스트→음성) 통합
-- **📚 동적 데이터 관리**: 실시간 보험 상품 정보 업데이트
-- **🌐 웹 기반 인터페이스**: 직관적인 사용자 경험
-- **⚡ 마이크로서비스 아키텍처**: 확장 가능하고 유지보수 용이한 구조
+- **🤖 RAG 기반 답변 생성**: 벡터 검색을 통한 정확한 보험 정보 제공으로 신뢰성 높은 답변 생성
+- **🎤 음성 상담 지원**: STT(음성→텍스트) + TTS(텍스트→음성) 통합으로 접근성 향상 및 상담 효율성 증대
+- **📚 동적 데이터 관리**: PDF 업로드 시 실시간 모델 반영으로 최신 보험 상품 정보 즉시 활용 가능
+- **🔌 RESTful API 기반**: 표준화된 API로 다양한 클라이언트와의 쉬운 통합
+- **⚡ 마이크로서비스 아키텍처**: 독립적인 서비스 배포와 확장으로 높은 가용성과 유지보수성 확보
 
 ## 🏗️ 시스템 아키텍처
 
@@ -64,6 +78,7 @@
 | **Container** | Docker | 서비스 컨테이너화 |
 | **Language** | Python 3.11+, Java 21 | 백엔드 서비스 |
 | **Runtime** | Uvicorn, JVM | ASGI 웹 서버, Java 런타임 |
+| **Security** | Azure Key Vault | 민감한 정보(API 키, 비밀번호) 보안 관리 |
 | **Monitoring** | Azure Monitor, Log Analytics | 중앙 집중식 모니터링 및 로그 분석 |
 
 ## 🗄️ 데이터베이스 스키마
@@ -99,7 +114,7 @@ MongoDB는 두 개의 컬렉션으로 구성되어 있습니다. 자세한 스�
 
 
 
-### 📋 API 계약 명세 요약
+## 📋 API 계약 명세 요약
 
 각 서비스의 주요 API 엔드포인트와 간단한 설명입니다. **상세한 API 계약 명세는 [api-contracts.md](./api-contracts.md)를 참조하세요.**
 
@@ -125,8 +140,6 @@ MongoDB는 두 개의 컬렉션으로 구성되어 있습니다. 자세한 스�
 - **GET /health**: 서비스 상태 확인
 - **GET /docs, GET /redoc**: API 문서 (Swagger UI, ReDoc)
 
-
-```
 
 ## 📡 API 통합 예시
 
@@ -295,9 +308,39 @@ git clone https://github.com/changhyeongHa/stt-service.git stt-service
 - `MONGODB_URI`: MongoDB Atlas 연결 문자열
 - `MONGODB_DB`: MongoDB 데이터베이스명 (예: insurance)
 
-## 📊 시스템 모니터링
+## 📊 시스템 모니터링 및 장애 대응
 
-### 헬스체크
+### 🔍 모니터링 아키텍처
+본 시스템은 **Azure Monitor**, **Log Analytics**, **Application Insights**를 기반으로 한 종합적인 모니터링 및 장애 대응 시스템을 제공합니다.
+
+#### 모니터링 구성요소
+- **Azure Monitor**: 모든 Azure 서비스의 메트릭 및 로그 수집
+- **Log Analytics**: 중앙 집중식 로그 분석 및 쿼리
+- **Application Insights**: 애플리케이션 성능 모니터링 및 실시간 장애 감지
+- **Azure App Service**: 기본적인 서비스 상태 및 리소스 모니터링
+- **서비스별 헬스체크**: 각 마이크로서비스의 상태 확인 엔드포인트
+
+### 📈 주요 모니터링 지표
+
+#### 1. **성능 지표**
+- **응답 시간**: API 엔드포인트별 응답 시간 모니터링
+- **처리량**: HTTP 요청 수 및 처리 성능
+- **오류율**: HTTP 상태 코드별 오류 비율 (4xx, 5xx)
+- **AI 모델 성능**: OpenAI API 응답 시간, 벡터 검색 성능
+
+#### 2. **가용성 지표**
+- **서비스 상태**: 각 마이크로서비스의 가동률 (Uptime)
+- **서비스 다운타임**: 서비스 중단 시간 모니터링
+- **헬스체크**: 정기적인 서비스 상태 점검
+
+#### 3. **리소스 지표**
+- **컴퓨팅**: CPU 사용률, 메모리 사용률
+- **네트워크**: HTTP 요청 수, 응답 시간
+- **데이터베이스**: MongoDB 연결 상태 및 성능
+
+### 🔄 헬스체크 및 상태 모니터링
+
+#### 1. **서비스별 헬스체크 엔드포인트**
 ```bash
 # 각 서비스 상태 확인
 curl https://your-qna-service.azurewebsites.net/health      # QnA Service
@@ -305,6 +348,27 @@ curl https://your-rag-data-service.azurewebsites.net/health # RAG Data Service
 curl https://your-stt-service.azurewebsites.net/health     # STT Service
 curl https://your-tts-service.azurewebsites.net/health     # TTS Service
 ```
+
+#### 2. **헬스체크 응답 형식**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-01-XXTXX:XX:XXZ",
+  "version": "1.0.0"
+}
+```
+
+
+
+## 📋 ADR (Architecture Decision Records)
+
+주요 아키텍처 결정사항은 [ADR 문서](./adr/)를 참조하세요.
+
+**핵심 결정사항 요약:**
+- 🏗️ **아키텍처 설계**: RAG 시스템을 여러 단계로 분할하는 방향으로 초기 결정
+- 🔄 **구현 방향 전환**: 시간적 제약과 응답 효율성을 고려하여 RAG 모델을 하나로 통합
+- 🚦 **서비스 접근 방식**: 오케스트레이터 패턴을 활용하여 파편화된 서비스들에 대한 단일 진입점 제공
+- 🗄️ **데이터베이스 구조**: 단일 컬렉션에서 products와 documents를 별도 컬렉션으로 분리하여 RAG 시스템 최적화
 
 ## 📚 추가 문서
 
