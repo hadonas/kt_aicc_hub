@@ -21,7 +21,7 @@
 
 ### 1. **QnA Service** - 핵심 RAG 엔진
 - **Repository**: [project03_model](https://github.com/changhyeongHa/project03_model)
-- **기능**: 사용자 질문에 대한 AI 답변 생성 및 관련 문서 검색
+- **목적**: 사용자 질문에 대한 AI 답변 생성 및 관련 문서 검색
 - **기술**: FastAPI, Azure OpenAI, MongoDB Atlas, LangChain
 
 #### 주요 API
@@ -30,7 +30,7 @@
 
 ### 2. **RAG Data Service** - 데이터 관리
 - **Repository**: [rag-data-service](https://github.com/younyoungieo/rag-data-service)
-- **기능**: PDF 문서를 처리하여 RAG 시스템을 위한 벡터 데이터베이스 구축
+- **목적**: PDF 문서를 처리하여 RAG 시스템을 위한 벡터 데이터베이스 구축
 - **기술**: Spring Boot 3.5.4, Java 21, MongoDB, Azure OpenAI
 - **배포**: Azure App Service for Containers
 
@@ -46,12 +46,12 @@
 
 ### 3. **Frontend** - 사용자 인터페이스
 - **Repository**: [kt_project_frontend](https://github.com/hadonas/kt_project_frontend)
-- **기능**: 웹 기반 상담 인터페이스
+- **목적**: 웹 기반 상담 인터페이스
 - **기술**: React, TypeScript, 모던 UI/UX
 
 ### 4. **TTS Service** - 음성 합성
 - **Repository**: [tts-service](https://github.com/changhyeongHa/tts-service)
-- **기능**: AI 답변을 자연스러운 음성으로 변환
+- **목적**: AI 답변을 자연스러운 음성으로 변환
 - **기술**: FastAPI, Azure Neural Voice, 다국어 지원
 
 #### 주요 API
@@ -61,7 +61,7 @@
 
 ### 5. **STT Service** - 음성 인식
 - **Repository**: [stt-service](https://github.com/changhyeongHa/stt-service)
-- **기능**: 사용자 음성 질문을 텍스트로 변환
+- **목적**: 사용자 음성 질문을 텍스트로 변환
 - **기술**: FastAPI, Azure Cognitive Services, 다국어 지원
 
 #### 주요 API
