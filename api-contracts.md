@@ -3,6 +3,8 @@
 
 > **KT의 AICC(AI Contact Center)를 본떠 만든 RAG(Retrieval-Augmented Generation) 기반 AI 상담 지원 서비스의 API 계약 명세입니다. 모든 서비스의 Request/Response DTO와 상세한 API 정보를 포함합니다.**
 
+> **제목에 APIM이라고 명시되어 있는 API는 Azure API Management에서 관리되며, https://team03-apim.azure-api.net 으로 요청을 보내시면 응답을 받을 수 있습니다.**
+
 ## QnA Service API 계약
 
 ### 서비스 개요
@@ -12,7 +14,7 @@
 
 ### API 엔드포인트
 
-**1. GET / - 헬스체크용 루트 엔드포인트**
+**1. GET /textqna - 헬스체크용 루트 엔드포인트 (APIM)**
 
 **Response (200 OK):**
 ```json
@@ -22,7 +24,7 @@
 }
 ```
 
-**2. GET /health - 상세 헬스체크 엔드포인트**
+**2. GET /textqna/health - 상세 헬스체크 엔드포인트 (APIM)**
 
 **Response (200 OK):**
 ```json
@@ -35,7 +37,7 @@
 }
 ```
 
-**3. POST /qna - 질문-답변 처리**
+**3. POST /textqna/qna - 질문-답변 처리 (APIM)**
 
 **Request DTO:**
 ```json
@@ -75,7 +77,7 @@
 
 ### API 엔드포인트
 
-**1. POST /api/v1/documents - 문서 업로드 및 처리**
+**1. POST /api/v1/documents - 문서 업로드 및 처리 (APIM: POST /data/api/v1/documents)**
 
 **Request DTO:**
 ```json
@@ -404,7 +406,7 @@ Form Fields:
 
 ### API 엔드포인트
 
-**1. POST /soundqna/qna - 음성을 텍스트로 변환**
+**1. POST /soundqna/qna - 음성을 텍스트로 변환 (APIM)**
 **오디오 파일을 텍스트로 변환하는 메인 엔드포인트**
 
 **Request DTO:**
