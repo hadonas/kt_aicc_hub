@@ -20,7 +20,17 @@
 - [🚀 설치 및 실행](#-설치-및-실행)
 - [📊 시스템 모니터링](#-시스템-모니터링)
 - [📋 ADR (Architecture Decision Records)](#-adr-architecture-decision-records)
-- [📚 추가 문서](#-추가-문서)
+- [🏗️ MSA 아키텍처 보드](#️-msa-아키텍처-보드)
+
+### 📚 관련 문서
+
+- **[🏗️ 시스템 아키텍처](./system_architecture.png)** - 전체 시스템 구조도
+- **[🗄️ MongoDB 스키마](./mongodb_schema.md)** - 데이터베이스 구조
+- **[📋 API 계약 명세](./api-contracts.md)** - 상세한 API 스펙
+- **[📋 ADR 문서](./adr/)** - 아키텍처 결정 기록
+- **[🏗️ MSA 아키텍처 보드](./msa_board.md)** - 마이크로서비스 아키텍처와 확장 계획
+
+
 
 ### 🌟 핵심 특징
 - **🤖 RAG 기반 답변 생성**: 벡터 검색을 통한 정확한 보험 정보 제공으로 신뢰성 높은 답변 생성
@@ -85,7 +95,11 @@
 
 📊 **데이터 구조**
 
-MongoDB는 두 개의 컬렉션으로 구성되어 있습니다. 자세한 스키마 정보는 [MongoDB 스키마 문서](./mongodb_schema.md)를 참조하세요:
+MongoDB는 두 개의 컬렉션으로 구성되어 있습니다.
+
+> **📖 상세 스키마 정보**
+> 
+> 자세한 스키마 정보는 **[MongoDB 스키마 문서](./mongodb_schema.md)**를 참조하세요.
 
 📋 **products 컬렉션 (상품 정보)**
 
@@ -116,7 +130,11 @@ MongoDB는 두 개의 컬렉션으로 구성되어 있습니다. 자세한 스�
 
 ## 📋 API 계약 명세 요약
 
-각 서비스의 주요 API 엔드포인트와 간단한 설명입니다. **상세한 API 계약 명세는 [api-contracts.md](./api-contracts.md)를 참조하세요.**
+각 서비스의 주요 API 엔드포인트와 간단한 설명입니다.
+
+> **📖 상세 API 계약 명세**
+> 
+> **상세한 API 계약 명세는 [api-contracts.md](./api-contracts.md)를 참조하세요.**
 
 #### 🧠 QnA Service
 - **GET /**: 서비스 상태 확인
@@ -359,10 +377,13 @@ curl https://your-tts-service.azurewebsites.net/health     # TTS Service
 ```
 
 
-
 ## 📋 ADR (Architecture Decision Records)
 
-주요 아키텍처 결정사항은 [ADR 문서](./adr/)를 참조하세요.
+주요 아키텍처 결정사항을 정리한 문서입니다.
+
+> **📖 상세 아키텍처 결정 기록**
+> 
+> **상세한 아키텍처 결정사항은 [ADR 문서](./adr/)를 참조하세요.**
 
 **핵심 결정사항 요약:**
 - 🏗️ **아키텍처 설계**: RAG 시스템을 여러 단계로 분할하는 방향으로 초기 결정
@@ -370,13 +391,18 @@ curl https://your-tts-service.azurewebsites.net/health     # TTS Service
 - 🚦 **서비스 접근 방식**: 오케스트레이터 패턴을 활용하여 파편화된 서비스들에 대한 단일 진입점 제공
 - 🗄️ **데이터베이스 구조**: 단일 컬렉션에서 products와 documents를 별도 컬렉션으로 분리하여 RAG 시스템 최적화
 
-## 📚 추가 문서
+## 🏗️ MSA 아키텍처 보드
 
-각 서비스의 상세한 사용법과 API 명세는 다음 문서를 참조하세요:
+본 시스템의 마이크로서비스 아키텍처와 향후 확장 계획을 상세히 정리한 문서입니다.
 
-- **QnA Service**: [project03_model](https://github.com/hadonas/project03_model)
-- **RAG Data Service**: [rag-data-service](https://github.com/younyoungieo/rag-data-service)
-- **Frontend**: [kt_project_frontend](https://github.com/hadonas/kt_project_frontend)
-- **TTS Service**: [tts-service](https://github.com/changhyeongHa/tts-service)
-- **STT Service**: [stt-service](https://github.com/changhyeongHa/stt-service)
+### 📋 주요 내용
+
+- **🏗️ 현재 MSA 아키텍처**: 동기식 HTTP API 기반의 안정적인 서비스 구조
+- **🔄 확장 가능한 설계**: 향후 이벤트 기반 아키텍처로의 점진적 전환 계획
+- **🎯 도메인 분리**: 상담, 문서 관리, 음성 처리 등 명확한 도메인 경계
+- **📊 성능 및 확장성**: 현재 상태와 향후 목표 아키텍처 비교 분석
+
+> **📖 상세 MSA 아키텍처 정보**
+> 
+> **자세한 내용은 [MSA 아키텍처 보드](./msa_board.md)를 참조하세요.**
 
