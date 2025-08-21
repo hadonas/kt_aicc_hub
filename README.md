@@ -1,10 +1,12 @@
-# 🏢 한화손해보험 RAG 기반 상담 지원 서비스
+# 🏢 KT AICC 기반 RAG 상담 지원 서비스
 
-> **한화손해보험의 상품 관련 질문에 대해, 사용자의 자연어 입력을 벡터화하여 사전 임베딩된 답변들과 비교하고, 가장 유사한 답변을 자동으로 추천하는 RAG 기반 상담 지원 서비스**
+> **KT의 AICC(AI Contact Center)를 본떠 만든 RAG(Retrieval-Augmented Generation) 기반 AI 상담 지원 서비스로, 사용자의 자연어 입력을 벡터화하여 사전 임베딩된 답변들과 비교하고, 가장 유사한 답변을 자동으로 추천하는 시스템**
 
 ## 📋 시스템 개요
 
-본 시스템은 **한화손해보험**의 상품 관련 상담을 지원하는 **RAG(Retrieval-Augmented Generation) 기반 AI 상담 시스템**입니다. 사용자의 질문(텍스트/음성)을 받아 관련 보험 상품 정보를 검색하고, AI가 생성한 답변을 음성으로 제공하여 고객 상담 경험을 향상시킵니다.
+본 시스템은 **KT의 AICC(AI Contact Center)를 본떠 만든 RAG(Retrieval-Augmented Generation) 기반 AI 상담 지원 서비스**입니다. 사용자의 질문(텍스트/음성)을 받아 관련 정보를 검색하고, AI가 생성한 답변을 음성으로 제공하여 고객 상담 경험을 향상시킵니다. 
+
+**한화손해보험**을 고객사로 가정하여 구현한 사례로, 보험 상품 관련 상담을 지원하는 시스템입니다.
 
 ### 🌟 핵심 특징
 - **🤖 RAG 기반 답변 생성**: 벡터 검색을 통한 정확한 보험 정보 제공
@@ -20,13 +22,8 @@
 ## 🚀 구성 서비스
 
 ### 1. **QnA Service** - 핵심 RAG 엔진
-<<<<<<< HEAD
-- **Repository**: [project03_model](https://github.com/changhyeongHa/project03_model)
-- **목적**: 사용자 질문에 대한 AI 답변 생성 및 관련 문서 검색
-=======
 - **Repository**: [project03_model](https://github.com/hadonas/project03_model)
-- **기능**: 사용자 질문에 대한 AI 답변 생성 및 관련 문서 검색
->>>>>>> 1ad634307a704cc602221c5e92aa0ff367708203
+- **목적**: 사용자 질문에 대한 AI 답변 생성 및 관련 문서 검색
 - **기술**: FastAPI, Azure OpenAI, MongoDB Atlas, LangChain
 
 #### 주요 API
@@ -58,20 +55,39 @@
 - **Repository**: [tts-service](https://github.com/changhyeongHa/tts-service)
 - **목적**: AI 답변을 자연스러운 음성으로 변환
 - **기술**: FastAPI, Azure Neural Voice, 다국어 지원
+- **배포**: Azure App Service for Containers
 
 #### 주요 API
-- `POST /tts/convert`: 텍스트를 음성으로 변환
-- `GET /voices`: 사용 가능한 음성 목록
-- `GET /health`: 서비스 상태 확인
+- `GET /`: 서비스 루트 엔드포인트 - 기본 상태 확인
+- `GET /health`: 서비스 상태 확인 - Azure Speech 연결 테스트 포함
+- `POST /tts/convert`: 텍스트를 음성 파일로 변환 (WAV 파일 직접 반환)
+- `POST /tts/convert-json`: 텍스트를 음성으로 변환 (JSON 응답 형태)
+- `POST /tts/convert-rag-response`: ⭐ RAG 응답을 Multipart 형태로 변환 (JSON + WAV 동시 반환)
+- `POST /tts/convert-rag-response-file`: RAG 응답을 WAV 파일로 직접 다운로드
+
+#### API 특징
+- **Neural Voice**: Azure 최신 인공지능 음성 합성
+- **음성 커스터마이징**: 속도, 높낮이, 톤 세밀 조절 가능
+- **RAG 통합**: RAG 응답을 직접 음성으로 변환하는 전용 API
+- **고음질 출력**: 16kHz/24kHz WAV 형식 지원
 
 ### 5. **STT Service** - 음성 인식
 - **Repository**: [stt-service](https://github.com/changhyeongHa/stt-service)
 - **목적**: 사용자 음성 질문을 텍스트로 변환
 - **기술**: FastAPI, Azure Cognitive Services, 다국어 지원
+- **배포**: Azure App Service for Containers
 
 #### 주요 API
-- `POST /stt/convert`: 오디오를 텍스트로 변환
-- `GET /health`: 서비스 상태 확인
+- `POST /stt/convert`: 오디오 파일을 텍스트로 변환하는 메인 엔드포인트
+- `GET /health`: 서비스 상태 확인 - Azure Speech 연결 테스트 포함
+- `GET /docs`: 대화형 API 문서 (Swagger UI)
+- `GET /redoc`: 대안 API 문서 (ReDoc)
+
+#### API 특징
+- **고정밀 음성 인식**: Azure Neural Speech 엔진 활용
+- **실시간 처리**: 연속 음성 인식으로 긴 오디오도 빠르게 처리
+- **상세 결과**: 텍스트 + 세그먼트 + 신뢰도 정보
+- **고가용성**: Docker 컨테이너 기반 안정적 서비스
 
 ## 🛠️ 기술 스택
 
@@ -182,6 +198,21 @@ curl -X POST "https://your-qna-service.azurewebsites.net/qna" \
 curl -X POST "https://your-tts-service.azurewebsites.net/tts/convert" \
   -H "Content-Type: application/json" \
   -d '{"text": "자동차보험료는 다음과 같이 계산됩니다..."}'
+
+# 4. TTS: RAG 응답을 직접 음성으로 변환
+curl -X POST "https://your-tts-service.azurewebsites.net/tts/convert-rag-response-file" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "success": true,
+    "messages": [
+      {"HumanMessage": "자동차보험료 계산 방법 알려줘"},
+      {"AIMessage": "자동차보험료는 다음과 같이 계산됩니다..."}
+    ],
+    "citations": [
+      {"title": "보험료계산서.pdf", "page": 15}
+    ]
+  }' \
+  --output rag_answer.wav
 ```
 
 #### 2. 텍스트 상담 처리
@@ -255,6 +286,9 @@ curl https://your-tts-service.azurewebsites.net/health     # TTS Service
 
 각 서비스의 상세한 사용법과 API 명세는 다음 문서를 참조하세요:
 
-- **QnA Service**: [project03_model](https://github.com/changhyeongHa/project03_model)
+- **QnA Service**: [project03_model](https://github.com/hadonas/project03_model)
 - **RAG Data Service**: [rag-data-service](https://github.com/younyoungieo/rag-data-service)
 - **Frontend**: [kt_project_frontend](https://github.com/hadonas/kt_project_frontend)
+- **TTS Service**: [tts-service](https://github.com/changhyeongHa/tts-service)
+- **STT Service**: [stt-service](https://github.com/changhyeongHa/stt-service)
+
