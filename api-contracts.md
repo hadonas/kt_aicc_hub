@@ -395,6 +395,60 @@ Form Fields:
 
 
 
+## Sound Q&A API 계약
+
+### 서비스 개요
+- **서비스명**: Sound Q&A
+- **설명**: 음성 질문을 입력으로 받아 텍스트와 음성으로 답변을 돌려주는 서비스
+- **기술**: Azure API Management, FastAPI
+
+### API 엔드포인트
+
+**1. POST /soundqna/qna - 음성을 텍스트로 변환**
+**오디오 파일을 텍스트로 변환하는 메인 엔드포인트**
+
+**Request DTO:**
+```
+POST /soundqna/qna
+Content-Type: multipart/form-data
+
+Form Fields:
+- audio_file: WAV 파일 (필수)
+- locale: 언어 코드 (선택사항, 기본값: ko-KR)
+```
+
+**Response (200 OK):**
+```
+HTTP/1.1 200 OK
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+X-RAG-Success: true
+X-Voice-Name: ko-KR-SunHiNeural
+X-Citations-Count: 2
+X-Audio-Format: wav
+X-Response-Type: multipart
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="json"
+Content-Type: application/json
+
+{
+  "success": true,
+  "messages": [
+    {"HumanMessage": "자동차보험료 계산 방법 알려줘"},
+    {"AIMessage": "자동차보험료는 다음과 같이 계산됩니다..."}
+  ],
+  "citations": [
+    {"title": "보험료계산서.pdf", "page": 15},
+    {"title": "자동차보험가이드.pdf", "page": 23}
+  ]
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="audio"; filename="answer.wav"
+Content-Type: audio/wav
+
+[WAV 오디오 파일 바이너리 데이터]
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+```
 ---
 
 *이 문서는 KT AICC 기반 RAG 상담 지원 서비스의 모든 API 계약 명세를 다룹니다.*
