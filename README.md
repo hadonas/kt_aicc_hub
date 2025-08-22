@@ -132,29 +132,33 @@ MongoDB는 두 개의 컬렉션으로 구성되어 있습니다.
 
 각 서비스의 주요 API 엔드포인트와 간단한 설명입니다.
 
+> **🚀 Azure API Management (APIM)**
+> 
+> **APIM으로 관리되는 API는 https://team03-apim.azure-api.net 으로 요청을 보내시면 응답을 받을 수 있습니다.**
+
 > **📖 상세 API 계약 명세**
 > 
 > **상세한 API 계약 명세는 [api-contracts.md](./api-contracts.md)를 참조하세요.**
 
-#### 🧠 QnA Service
-- **GET /**: 서비스 상태 확인
-- **GET /health**: 상세 헬스체크
-- **POST /qna**: 질문-답변 처리 (RAG 기반 AI 답변 생성)
+#### 🧠 QnA Service (APIM: /textqna)
+- **GET /textqna**: 서비스 상태 확인 (APIM)
+- **GET /textqna/health**: 상세 헬스체크 (APIM)
+- **POST /textqna/qna**: 질문-답변 처리 (RAG 기반 AI 답변 생성) (APIM)
 
-#### 📚 RAG Data Service
-- **POST /api/v1/documents**: PDF 문서 업로드 및 벡터 처리
+#### 📚 RAG Data Service (APIM: /data)
+- **POST /data/api/v1/documents**: PDF 문서 업로드 및 벡터 처리 (APIM)
 - **GET /api/v1/health**: 서비스 상태 확인
 - **GET /actuator/health**: Spring Boot Actuator 헬스체크
 
-#### 🎤 TTS Service
+#### 🎤 TTS Service (APIM: /tts)
 - **GET /, GET /health**: 서비스 상태 확인
 - **POST /tts/convert**: 텍스트를 WAV 파일로 변환
 - **POST /tts/convert-json**: JSON 응답 형태
 - **POST /tts/convert-rag-response**: RAG 응답을 Multipart 형태로 변환
 - **POST /tts/convert-rag-response-file**: RAG 응답을 WAV 파일로 직접 다운로드
 
-#### 🎧 STT Service
-- **POST /stt/convert**: 음성을 텍스트로 변환 (메인 엔드포인트)
+#### 🎧 STT Service (APIM: /soundqna)
+- **POST /soundqna/qna**: 음성을 텍스트로 변환 (메인 엔드포인트) (APIM)
 - **GET /health**: 서비스 상태 확인
 - **GET /docs, GET /redoc**: API 문서 (Swagger UI, ReDoc)
 

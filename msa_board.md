@@ -1,6 +1,10 @@
-# 🏗️ MSA 이벤트 보드 (Event-Driven Architecture Board)
+# 🏗️ MSA 아키텍처 보드 (Microservices Architecture Board)
 
-> **KT AICC 기반 RAG 상담 지원 서비스의 이벤트 기반 마이크로서비스 아키텍처 보드**
+> **KT AICC 기반 RAG 상담 지원 서비스의 마이크로서비스 아키텍처 보드 (현재: 동기식 API, 향후: 이벤트 기반 확장)**
+
+> **🚀 Azure API Management (APIM)**
+> 
+> **APIM으로 관리되는 API는 https://team03-apim.azure-api.net 으로 요청을 보내시면 응답을 받을 수 있습니다.**
 
 ## 🎯 도메인 이벤트 맵
 
@@ -13,7 +17,7 @@
 | **음성 합성** | TTS Service | 음성 도메인 | 독립적 텍스트-음성 변환, Azure Speech 전용 | 구현됨 |
 | **음성 인식** | STT Service | 음성 도메인 | 독립적 음성-텍스트 변환, Azure Speech 전용 | 구현됨 |
 
-### 🏗️ MSA적 특징 분석
+### 🏗️ MSA 특징 분석
 
 **QnA Service (상담 도메인)**
 - **책임**: 사용자 질문에 대한 AI 답변 생성 및 문서 검색
@@ -30,7 +34,7 @@
 - **독립성**: Azure Speech 서비스만 의존, 음성 처리에 특화
 - **경계**: 음성 변환과 관련된 모든 로직을 독립적으로 처리
 
-> **📝 MSA 관점**: 각 서비스는 명확한 도메인 경계를 가지고 독립적으로 운영되며, 서비스 간 직접적인 데이터 공유나 강한 결합 없이 느슨하게 연결되어 있습니다. 현재는 동기식 HTTP API를 통해 통신하지만, 이는 MSA의 핵심 원칙인 "느슨한 결합"을 해치지 않습니다.
+> **📝 MSA 원칙**: 각 서비스는 명확한 도메인 경계를 가지고 독립적으로 운영되며, 서비스 간 직접적인 데이터 공유나 강한 결합 없이 느슨하게 연결되어 있습니다. 현재는 동기식 HTTP API를 통해 통신하지만, 이는 MSA의 핵심 원칙인 "느슨한 결합"을 해치지 않습니다.
 
 ---
 
@@ -39,9 +43,9 @@
 ### 📊 API Management 실제 구성 현황
 
 **구성된 API들:**
-- **AI Q&A Service API**: 상담 도메인 담당
-- **RAG Data Service API**: 문서 관리 도메인 담당  
-- **Sound Q&A API**: 음성 처리 도메인 담당
+- **AI Q&A Service API**: 상담 도메인 담당 (`/textqna`)
+- **RAG Data Service API**: 문서 관리 도메인 담당 (`/data`)  
+- **Sound Q&A API**: 음성 처리 도메인 담당 (`/soundqna`)
 
 **현재 설정 상태:**
 - **Products**: 없음 (개발/테스트 단계)
@@ -104,13 +108,13 @@ graph TB
     subgraph "🧠 QnA Service (상담 도메인)"
         QNA[QnA Service<br/>📍 Azure App Service<br/>🤖 AI 답변 생성<br/>📚 문서 검색]
         
-        QNA_APIS[📋 구현된 API<br/>• POST /qna<br/>• GET /health]
+        QNA_APIS[📋 구현된 API<br/>• POST /textqna/qna (APIM)<br/>• GET /textqna/health (APIM)]
     end
     
     subgraph "📚 RAG Data Service (문서 도메인)"
         RDS[RAG Data Service<br/>📍 Azure App Service<br/>📄 PDF 처리<br/>🔢 벡터 임베딩]
         
-        RDS_APIS[📋 구현된 API<br/>• POST /api/v1/documents<br/>• GET /api/v1/health]
+        RDS_APIS[📋 구현된 API<br/>• POST /data/api/v1/documents (APIM)<br/>• GET /api/v1/health]
     end
     
     subgraph "🎤 TTS Service (음성 합성 도메인)"
@@ -122,7 +126,7 @@ graph TB
     subgraph "🎧 STT Service (음성 인식 도메인)"
         STT[STT Service<br/>📍 Azure App Service<br/>🎵 음성→텍스트<br/>📝 텍스트 변환]
         
-        STT_APIS[📋 구현된 API<br/>• POST /stt/convert<br/>• GET /health]
+        STT_APIS[📋 구현된 API<br/>• POST /soundqna/qna (APIM)<br/>• GET /health]
     end
     
     subgraph "🖥️ Frontend (UI 도메인)"
@@ -143,7 +147,7 @@ graph TB
         LA[Log Analytics<br/>📝 로그 분석]
     end
     
-    %% MSA적 연결 관계: 느슨한 결합
+    %% MSA 연결 관계: 느슨한 결합
     U -->|HTTP 요청| APIM
     A -->|HTTP 요청| APIM
     
@@ -356,9 +360,9 @@ graph TB
 
 ---
 
-## 🌟 MSA 관점에서의 특장점
+## 🌟 MSA 특장점
 
-### 🏆 기술적 특장점
+### 🏆 기술적 장점
 
 **1. 점진적 아키텍처 진화**
 - **현재**: 동기식 HTTP API로 안정적인 서비스 운영
@@ -375,7 +379,7 @@ graph TB
 - **팀 역량 활용**: 팀의 기술적 강점을 최대한 활용
 - **위험 분산**: 특정 기술의 문제가 전체 시스템에 영향 없음
 
-### 📈 운영적 특장점
+### 📈 운영적 장점
 
 **1. 장애 격리와 안정성**
 - **서비스 격리**: 한 서비스의 장애가 전체 시스템에 전파되지 않음
@@ -392,7 +396,7 @@ graph TB
 - **비용 최적화**: 사용량이 적은 서비스는 최소 리소스로 운영
 - **성능 예측**: 서비스별 성능 특성을 정확히 파악하여 리소스 계획
 
-### 💼 비즈니스 특장점
+### 💼 비즈니스 장점
 
 **1. 실시간 지식 업데이트**
 - **즉시 반영**: 문서 업로드 시 AI 상담에 즉시 반영
