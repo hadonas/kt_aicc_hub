@@ -1,3 +1,5 @@
+kt-ai-frontend-azbefvacgaejcpfm.koreacentral-01.azurewebsites.net 접속
+
 <AI 상담 챗봇&보이스봇 기능>
 “자동차 사고가 났을 때, 긴급 출동 서비스를 어떻게 신청하나요?”
 
@@ -18,4 +20,5 @@
 우측 상단 "문서 추가" -> "https://www.cuisinart.co.kr/down/recipe_book.pdf" 추가 후
 
 "연어장구이 만드는 법 알려줘" (성공 확인)
+
 
