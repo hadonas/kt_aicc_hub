@@ -108,13 +108,13 @@ graph TB
     subgraph "🧠 QnA Service (상담 도메인)"
         QNA[QnA Service<br/>📍 Azure App Service<br/>🤖 AI 답변 생성<br/>📚 문서 검색]
         
-        QNA_APIS[📋 구현된 API<br/>• POST /textqna/qna (APIM)<br/>• GET /textqna/health (APIM)]
+        QNA_APIS[📋 구현된 API<br/>• POST /qna<br/>• GET /health]
     end
     
     subgraph "📚 RAG Data Service (문서 도메인)"
         RDS[RAG Data Service<br/>📍 Azure App Service<br/>📄 PDF 처리<br/>🔢 벡터 임베딩]
         
-        RDS_APIS[📋 구현된 API<br/>• POST /data/api/v1/documents (APIM)<br/>• GET /api/v1/health]
+        RDS_APIS[📋 구현된 API<br/>• POST /api/v1/documents<br/>• GET /api/v1/health]
     end
     
     subgraph "🎤 TTS Service (음성 합성 도메인)"
@@ -126,7 +126,7 @@ graph TB
     subgraph "🎧 STT Service (음성 인식 도메인)"
         STT[STT Service<br/>📍 Azure App Service<br/>🎵 음성→텍스트<br/>📝 텍스트 변환]
         
-        STT_APIS[📋 구현된 API<br/>• POST /soundqna/qna (APIM)<br/>• GET /health]
+        STT_APIS[📋 구현된 API<br/>• POST /stt/convert<br/>• GET /health]
     end
     
     subgraph "🖥️ Frontend (UI 도메인)"
@@ -147,7 +147,7 @@ graph TB
         LA[Log Analytics<br/>📝 로그 분석]
     end
     
-    %% MSA 연결 관계: 느슨한 결합
+    %% MSA적 연결 관계: 느슨한 결합
     U -->|HTTP 요청| APIM
     A -->|HTTP 요청| APIM
     
@@ -179,6 +179,7 @@ graph TB
     class QNA,RDS,TTS,STT,FE,AM,LA service
     class QNA_APIS,RDS_APIS,TTS_APIS,STT_APIS api
 ```
+
 
 ### 🏗️ MSA 아키텍처의 핵심 특징
 
@@ -419,14 +420,14 @@ graph TB
 
 ### 📋 현재 상태 평가
 
-**성공적으로 달성한 MSA 목표**
-✅ **서비스 분리**: 각 도메인별로 명확하게 분리된 서비스 구조
-✅ **독립적 배포**: Azure App Service를 통한 독립적인 서비스 배포
-✅ **느슨한 결합**: API Gateway를 통한 서비스 간 느슨한 연결
-✅ **기술 다양화**: 도메인별로 적합한 기술 스택 선택
+**성공적으로 달성한 MSA 목표**  
+✅ **서비스 분리**: 각 도메인별로 명확하게 분리된 서비스 구조  
+✅ **독립적 배포**: Azure App Service를 통한 독립적인 서비스 배포  
+✅ **느슨한 결합**: API Gateway를 통한 서비스 간 느슨한 연결  
+✅ **기술 다양화**: 도메인별로 적합한 기술 스택 선택  
 
-**확장 가능한 영역**
-🟡 **통신 방식**: 이벤트 기반으로의 확장
-🟡 **확장성**: 수평 확장을 위한 비동기 처리
+**확장 가능한 영역**  
+🟡 **통신 방식**: 이벤트 기반으로의 확장  
+🟡 **확장성**: 수평 확장을 위한 비동기 처리  
 🟡 **모니터링**: 이벤트 기반 상세한 비즈니스 인사이트
 
