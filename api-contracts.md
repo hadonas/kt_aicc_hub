@@ -42,24 +42,87 @@
 **Request DTO:**
 ```json
 {
-    "input_message": "자동차보험료 계산 방법 알려줘"
+    "input_message": "자동차 보험료 계산 방법은 무엇인가요?",
+    "search_filters": {
+        "category": "insurance",
+        "document_type": "policy"
+    },
+    "max_results": 6,
+    "include_citations": true
 }
 ```
+
+**요청 필드 설명:**
+
+| 필드 | 타입 | 필수 | 기본값 | 설명 |
+|------|------|------|--------|------|
+| input_message | string | ✅ | - | 사용자 질문 (최대 1000자) |
+| search_filters | object | ❌ | {} | 문서 필터링 조건 |
+| max_results | integer | ❌ | 6 | 검색할 최대 문서 수 |
+| include_citations | boolean | ❌ | true | 인용 정보 포함 여부 |
 
 **Response (200 OK):**
 ```json
 {
     "success": true,
     "messages": [
-        {"HumanMessage": "자동차보험료 계산 방법 알려줘"},
-        {"AIMessage": "자동차보험료는 다음과 같이 계산됩니다..."}
+        {
+            "HumanMessage": "자동차 보험료 계산 방법은 무엇인가요?"
+        },
+        {
+            "AIMessage": "자동차 보험료는 다음과 같은 주요 요소들을 종합적으로 고려하여 계산됩니다:\n\n1. **차량 관련 요소**\n   - 차량 가격 및 연식\n   - 차량 종류 및 배기량\n   - 안전장치 설치 여부\n\n2. **운전자 관련 요소**\n   - 연령 및 성별\n   - 운전 경력\n   - 사고 이력 및 보험금 지급 이력\n\n3. **보험 관련 요소**\n   - 보장 범위 및 한도\n   - 자기부담금 설정\n   - 할인 제도 적용\n\n최종 보험료는 보험회사의 요율체계에 따라 이러한 요소들이 종합적으로 반영되어 산출됩니다."
+        }
     ],
     "citations": [
-        {"title": "보험료계산서.pdf", "page": 15},
-        {"title": "자동차보험가이드.pdf", "page": 23}
-    ]
+        {
+            "title": "자동차보험_기본약관.pdf",
+            "page": "23",
+            "download_link": "https://www.hwgeneralins.com/upload/hmpag_upload/product/movable(2501)_..."
+        },
+        {
+            "title": "보험료산출기준_가이드.pdf", 
+            "page": "15",
+            "download_link": "https://www.hwgeneralins.com/upload/hmpag_upload/product/movable(2502)_..."
+        }
+    ],
+    "metadata": {
+        "search_time": 0.45,
+        "generation_time": 2.18,
+        "total_time": 2.63,
+        "documents_searched": 1247,
+        "documents_used": 6,
+        "confidence_score": 0.94
+    }
 }
 ```
+
+**응답 필드 설명:**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| success | boolean | 답변 생성 성공 여부 (AI 심판 평가 결과) |
+| messages | array | 질문-답변 대화 기록 |
+| citations | array | 답변 근거가 된 문서 출처 정보 (제목, 페이지, 다운로드 링크 포함) |
+| metadata | object | 처리 성능 및 신뢰도 정보 |
+
+**Citations 객체 구조:**
+각 citations 배열의 항목은 다음 구조를 가집니다:
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| title | string | 원본 문서 파일명 |
+| page | string | 문서 내 페이지 번호 |
+| download_link | string | 원본 문서 다운로드 URL |
+
+**Metadata 객체 구조:**
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| search_time | float | 문서 검색 소요 시간 (초) |
+| generation_time | float | AI 답변 생성 소요 시간 (초) |
+| total_time | float | 전체 처리 소요 시간 (초) |
+| documents_searched | integer | 검색된 총 문서 수 |
+| documents_used | integer | 답변 생성에 사용된 문서 수 |
+| confidence_score | float | AI 답변의 신뢰도 점수 (0.0 ~ 1.0) |
 
 **Response (422/500 Error):**
 ```json
@@ -265,8 +328,16 @@ X-TTS-Message: 음성 합성 완료
     {"AIMessage": "자동차보험료는 다음과 같이 계산됩니다..."}
   ],
   "citations": [
-    {"title": "보험료계산서.pdf", "page": 15},
-    {"title": "자동차보험가이드.pdf", "page": 23}
+    {
+      "title": "자동차보험_기본약관.pdf", 
+      "page": "23",
+      "download_link": "https://www.hwgeneralins.com/upload/hmpag_upload/product/movable(2501)_..."
+    },
+    {
+      "title": "보험료산출기준_가이드.pdf", 
+      "page": "15",
+      "download_link": "https://www.hwgeneralins.com/upload/hmpag_upload/product/movable(2502)_..."
+    }
   ]
 }
 ```
@@ -292,8 +363,16 @@ Content-Type: application/json
     {"AIMessage": "자동차보험료는 다음과 같이 계산됩니다..."}
   ],
   "citations": [
-    {"title": "보험료계산서.pdf", "page": 15},
-    {"title": "자동차보험가이드.pdf", "page": 23}
+    {
+      "title": "자동차보험_기본약관.pdf", 
+      "page": "23",
+      "download_link": "https://www.hwgeneralins.com/upload/hmpag_upload/product/movable(2501)_..."
+    },
+    {
+      "title": "보험료산출기준_가이드.pdf", 
+      "page": "15",
+      "download_link": "https://www.hwgeneralins.com/upload/hmpag_upload/product/movable(2502)_..."
+    }
   ]
 }
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
@@ -309,6 +388,23 @@ Content-Type: audio/wav
 
 **Request DTO:** 동일한 RAG 응답 구조
 
+**RAG 응답 필드 설명:**
+
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| success | boolean | ✅ | RAG 응답의 성공 여부 |
+| messages | array | ✅ | 질문-답변 대화 기록 |
+| citations | array | ❌ | 답변 근거가 된 문서 출처 정보 (download_link 포함) |
+
+**Citations 객체 구조:**
+각 citations 배열의 항목은 다음 구조를 가집니다:
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| title | string | 원본 문서 파일명 |
+| page | string | 문서 내 페이지 번호 |
+| download_link | string | 원본 문서 다운로드 URL |
+
 **Response (200 OK) - WAV 파일:**
 ```
 HTTP/1.1 200 OK
@@ -318,13 +414,26 @@ X-Voice-Name: ko-KR-SunHiNeural
 X-Text-Length: 125
 X-RAG-Success: true
 X-Citations-Count: 2
-X-First-Citation: 보험료계산서.pdf::15
+X-First-Citation: 자동차보험_기본약관.pdf::23
 X-TTS-Success: true
 X-AI-Message-Preview: 자동차보험료는 다음과 같이 계산됩니다...
 X-RAG-Messages-Count: 2
 
 [WAV 오디오 파일 바이너리 데이터]
 ```
+
+**응답 헤더 설명:**
+
+| 헤더 | 설명 |
+|------|------|
+| X-Voice-Name | 사용된 음성 종류 |
+| X-Text-Length | 변환된 텍스트 길이 |
+| X-RAG-Success | RAG 응답 처리 성공 여부 |
+| X-Citations-Count | 인용 문서 수 |
+| X-First-Citation | 첫 번째 인용 문서 정보 (파일명::페이지) |
+| X-TTS-Success | TTS 변환 성공 여부 |
+| X-AI-Message-Preview | AI 답변 미리보기 |
+| X-RAG-Messages-Count | RAG 메시지 수 |
 
 
 

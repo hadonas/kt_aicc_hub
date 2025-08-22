@@ -38,6 +38,8 @@
 - **📚 동적 데이터 관리**: PDF 업로드 시 실시간 모델 반영으로 최신 보험 상품 정보 즉시 활용 가능
 - **🔌 RESTful API 기반**: 표준화된 API로 다양한 클라이언트와의 쉬운 통합
 - **⚡ 마이크로서비스 아키텍처**: 독립적인 서비스 배포와 확장으로 높은 가용성과 유지보수성 확보
+- **🔗 원본 문서 다운로드**: citations 배열의 download_link 필드를 통해 AI 답변의 근거가 된 원본 문서 직접 다운로드 지원
+- **🚀 자동화된 배포**: QnA Service의 GitHub Actions 기반 CI/CD 파이프라인으로 코드 변경 시 자동 테스트, 빌드, 배포
 
 ## 🏗️ 시스템 아키텍처
 
@@ -49,6 +51,7 @@
 - **Repository**: [project03_model](https://github.com/hadonas/project03_model)
 - **목적**: 사용자 질문에 대한 AI 답변 생성 및 관련 문서 검색
 - **기술**: FastAPI, Azure OpenAI, MongoDB Atlas, LangChain
+- **CI/CD**: GitHub Actions 기반 자동 테스트, 빌드, 배포
 
 ### 2. **RAG Data Service** - 데이터 관리
 - **Repository**: [rag-data-service](https://github.com/younyoungieo/rag-data-service)
@@ -81,7 +84,7 @@
 |------|------|------|
 | **API Gateway** | Azure API Management | API 라우팅, 인증, 모니터링 |
 | **Backend Framework** | FastAPI, Spring Boot | 마이크로서비스 API 서버 |
-| **AI/ML** | Azure OpenAI (GPT-4, text-embedding-ada-002) | 자연어 처리, 답변 생성, 벡터 임베딩 |
+| **AI/ML** | Azure OpenAI (GPT-4.1 mini, text-embedding-ada-002) | 자연어 처리, 답변 생성, 벡터 임베딩 |
 | **Vector Database** | MongoDB Atlas | 벡터 검색 및 문서 저장 |
 | **Speech Services** | Azure Cognitive Services | STT/TTS 처리 |
 | **Frontend** | Next.js (React + TypeScript) | 풀스택 웹 프레임워크 및 사용자 인터페이스 |
@@ -123,7 +126,7 @@ MongoDB는 두 개의 컬렉션으로 구성되어 있습니다.
 | chunk_length | 청크 길이 (문자 수) | 331, 581, 706... |
 | product_id | 상품 참조 ID | ObjectId("products 컬렉션 참조") |
 | type | 문서타입 | "상품요약", "약관", "사업방법" |
-| download_link | 원본 문서 링크 | "https://www.hwgeneralins.com/..." |
+| download_link | 원본 문서 다운로드 링크 | "https://www.hwgeneralins.com/..." |
 | created_at | 생성 시간 | ISODate("2025-01-XX") |
 
 
@@ -139,11 +142,16 @@ MongoDB는 두 개의 컬렉션으로 구성되어 있습니다.
 > **📖 상세 API 계약 명세**
 > 
 > **상세한 API 계약 명세는 [api-contracts.md](./api-contracts.md)를 참조하세요.**
+> 
+> **🔄 최신 업데이트**: citations 배열에 download_link 필드가 추가되어 원본 문서 다운로드 링크를 제공합니다. 이를 통해 사용자는 AI 답변의 근거가 된 원본 문서를 직접 다운로드하여 확인할 수 있습니다.
+> 
+> **🎵 TTS Service 업데이트**: RAG 응답을 음성으로 변환할 때 citations 배열의 download_link 필드를 포함하여, 음성 답변과 함께 원본 문서 다운로드 링크를 제공합니다.
 
 #### 🧠 QnA Service (APIM: /textqna)
 - **GET /textqna**: 서비스 상태 확인 (APIM)
 - **GET /textqna/health**: 상세 헬스체크 (APIM)
 - **POST /textqna/qna**: 질문-답변 처리 (RAG 기반 AI 답변 생성) (APIM)
+  - **📋 최신 업데이트**: citations 배열에 download_link 필드가 추가되어 원본 문서 다운로드 링크를 제공합니다.
 
 #### 📚 RAG Data Service (APIM: /data)
 - **POST /data/api/v1/documents**: PDF 문서 업로드 및 벡터 처리 (APIM)
@@ -156,6 +164,7 @@ MongoDB는 두 개의 컬렉션으로 구성되어 있습니다.
 - **POST /tts/convert-json**: JSON 응답 형태
 - **POST /tts/convert-rag-response**: RAG 응답을 Multipart 형태로 변환
 - **POST /tts/convert-rag-response-file**: RAG 응답을 WAV 파일로 직접 다운로드
+  - **📋 최신 업데이트**: citations 배열에 download_link 필드가 추가되어 원본 문서 다운로드 링크를 제공합니다.
 
 #### 🎧 STT Service (APIM: /soundqna)
 - **POST /soundqna/qna**: 음성을 텍스트로 변환 (메인 엔드포인트) (APIM)
@@ -185,7 +194,7 @@ sequenceDiagram
     STT->>QnA: 변환된 텍스트 전달
     QnA->>M: 벡터 유사도 검색 요청
     M->>QnA: 관련 문서 청크 반환
-    QnA->>AO: GPT-4 모델로 답변 생성 요청
+    QnA->>AO: GPT-4.1 mini 모델로 답변 생성 요청
     AO->>QnA: AI 답변 반환
     QnA->>TTS: AI 답변을 TTS로 직접 전달
     TTS->>APIM: 음성 파일 반환
@@ -208,7 +217,7 @@ sequenceDiagram
     APIM->>QnA: QnA 서비스로 라우팅
     QnA->>M: 벡터 유사도 검색 요청
     M->>QnA: 관련 문서 청크 반환
-    QnA->>AO: GPT-4 모델로 답변 생성 요청
+    QnA->>AO: GPT-4.1 mini 모델로 답변 생성 요청
     AO->>QnA: AI 답변 반환
     QnA->>APIM: AI 답변 + 관련 문서
     APIM->>F: 답변 전달
@@ -269,7 +278,11 @@ curl -X POST "https://your-tts-service.azurewebsites.net/tts/convert-rag-respons
       {"AIMessage": "자동차보험료는 다음과 같이 계산됩니다..."}
     ],
     "citations": [
-      {"title": "보험료계산서.pdf", "page": 15}
+      {
+        "title": "보험료계산서.pdf", 
+        "page": 15,
+        "download_link": "https://www.hwgeneralins.com/upload/hmpag_upload/product/movable(2501)_..."
+      }
     ]
   }' \
   --output rag_answer.wav
@@ -319,6 +332,15 @@ git clone https://github.com/changhyeongHa/stt-service.git stt-service
 
 ### 2. 환경 변수 설정
 각 서비스의 환경 변수는 Azure App Service 설정에서 구성됩니다.
+
+### 3. CI/CD 파이프라인
+QnA Service는 GitHub Actions 기반 CI/CD 파이프라인이 구현되어 있습니다:
+
+- **자동화**: main/develop 브랜치 푸시 시 자동 테스트 및 빌드
+- **테스트**: Python 3.11 환경에서 의존성 설치 및 테스트 실행
+- **컨테이너**: Docker 이미지 자동 빌드 및 Docker Hub 푸시
+- **배포**: Azure App Service 자동 배포 (스테이징/프로덕션 환경)
+- **환경**: 스테이징(develop), 프로덕션(main) 브랜치별 자동 배포
 
 **필수 환경 변수:**
 - `AZURE_OPENAI_API_KEY`: Azure OpenAI API 키
