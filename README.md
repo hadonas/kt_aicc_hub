@@ -10,15 +10,18 @@
 
 ## 📑 목차
 
-- [📋 시스템 개요](#-시스템-개요)
-- [🏗️ 시스템 아키텍처](#️-시스템-아키텍처)
+### 🎯 발표 순서
+- [📋 시스템 개요](#-시스템-개요) - 인트로(서비스 소개)
+- [📡 API 통합 예시](#-api-통합-예시) - 시퀀스 다이어그램 (하이브리드 검색 엔진 & 문서 추가 워크플로우)
+- [🏗️ 시스템 아키텍처](#️-시스템-아키텍처) - 아키텍처 다이어그램 (Azure 활용 강조)
+- [📊 시스템 모니터링 및 장애 대응](#-시스템-모니터링-및-장애-대응) - Application Insights 모니터링 지표
+
+### 📚 상세 정보
 - [🚀 구성 서비스](#-구성-서비스)
 - [🛠️ 기술 스택](#️-기술-스택)
 - [🗄️ 데이터베이스 스키마](#️-데이터베이스-스키마)
 - [📋 API 계약 명세 요약](#-api-계약-명세-요약)
-- [📡 API 통합 예시](#-api-통합-예시)
 - [🚀 설치 및 실행](#-설치-및-실행)
-- [📊 시스템 모니터링 및 장애 대응](#-시스템-모니터링-및-장애-대응)
 - [📋 ADR (Architecture Decision Records)](#-adr-architecture-decision-records)
 - [🏗️ MSA 아키텍처 보드](#️-msa-아키텍처-보드)
 
@@ -41,6 +44,144 @@
 - **⚡ 마이크로서비스 아키텍처**: 독립적인 서비스 배포와 확장으로 높은 가용성과 유지보수성 확보
 - **🔗 원본 문서 다운로드**: citations 배열의 download_link 필드를 통해 AI 답변의 근거가 된 원본 문서 직접 다운로드 지원
 - **🚀 자동화된 배포**: QnA Service의 GitHub Actions 기반 CI/CD 파이프라인으로 코드 변경 시 자동 테스트, 빌드, 배포
+
+## 📡 API 통합 예시
+
+### 🔄 전체 상담 플로우
+
+#### 1. 음성 상담 플로우
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as Frontend
+    participant APIM as API Management
+    participant STT as STT Service
+    participant QnA as QnA Service
+    participant AO as Azure OpenAI
+    participant M as MongoDB Atlas
+    participant TTS as TTS Service
+    
+    U->>F: 음성으로 질문
+    F->>APIM: 오디오 파일 전송
+    APIM->>STT: STT 서비스로 라우팅
+    STT->>QnA: 변환된 텍스트 전달
+    QnA->>M: 벡터 유사도 검색 요청
+    M->>QnA: 관련 문서 청크 반환
+    QnA->>AO: GPT-4.1 mini 모델로 답변 생성 요청
+    AO->>QnA: AI 답변 반환
+    QnA->>TTS: AI 답변을 TTS로 직접 전달
+    TTS->>APIM: 음성 파일 반환
+    APIM->>F: 음성 파일 전달
+    F->>U: 음성 답변 재생
+```
+
+#### 2. 텍스트 상담 플로우
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as Frontend
+    participant APIM as API Management
+    participant QnA as QnA Service
+    participant AO as Azure OpenAI
+    participant M as MongoDB Atlas
+    
+    U->>F: 텍스트로 질문 입력
+    F->>APIM: 텍스트 질문 전송
+    APIM->>QnA: QnA 서비스로 라우팅
+    QnA->>M: 벡터 유사도 검색 요청
+    M->>QnA: 관련 문서 청크 반환
+    QnA->>AO: GPT-4.1 mini 모델로 답변 생성 요청
+    AO->>QnA: AI 답변 반환
+    QnA->>APIM: AI 답변 + 관련 문서
+    APIM->>F: 답변 전달
+    F->>U: 텍스트 답변 표시
+```
+
+#### 3. 문서 추가 워크플로우
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant F as Frontend
+    participant APIM as API Management
+    participant RDS as RAG Data Service
+    participant AO as Azure OpenAI
+    participant M as MongoDB Atlas
+    participant QS as QnA Service
+    
+    A->>F: PDF 문서 URL + 메타데이터 입력
+    F->>APIM: 문서 추가 요청 전송
+    APIM->>RDS: RAG Data Service로 라우팅
+    RDS->>RDS: PDF 다운로드 및 텍스트 추출
+    RDS->>RDS: 텍스트 청크 분할
+    RDS->>AO: 각 청크의 벡터 임베딩 요청
+    AO->>RDS: 1536차원 벡터 반환
+    RDS->>M: 청크 + 벡터 + 메타데이터 저장
+    RDS->>APIM: 처리 완료 응답
+    APIM->>F: 결과 전달
+    F->>A: 처리 완료 알림
+    Note over QS: 이제 QnA Service에서<br/>새로운 문서 정보 검색 가능
+```
+
+### 📝 API 호출 예시
+
+#### 1. 음성 상담 처리
+```bash
+# 1. STT: 음성을 텍스트로 변환
+curl -X POST "https://your-stt-service.azurewebsites.net/stt/convert" \
+  -F "audio_file=@question.wav" \
+  -F "locale=ko-KR"
+
+# 2. QnA: AI 답변 생성
+curl -X POST "https://your-qna-service.azurewebsites.net/qna" \
+  -H "Content-Type: application/json" \
+  -d '{"input_message": "자동차보험료 계산 방법 알려줘"}'
+
+# 3. TTS: 답변을 음성으로 변환
+curl -X POST "https://your-tts-service.azurewebsites.net/tts/convert" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "자동차보험료는 다음과 같이 계산됩니다..."}'
+
+# 4. TTS: RAG 응답을 직접 음성으로 변환
+curl -X POST "https://your-tts-service.azurewebsites.net/tts/convert-rag-response-file" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "success": true,
+    "messages": [
+      {"HumanMessage": "자동차보험료 계산 방법 알려줘"},
+      {"AIMessage": "자동차보험료는 다음과 같이 계산됩니다..."}
+    ],
+    "citations": [
+      {
+        "title": "보험료계산서.pdf", 
+        "page": 15,
+        "download_link": "https://www.hwgeneralins.com/upload/hmpag_upload/product/movable(2501)_..."
+      }
+    ]
+  }' \
+  --output rag_answer.wav
+```
+
+#### 2. 텍스트 상담 처리
+```bash
+# QnA: 텍스트 질문에 대한 AI 답변 생성
+curl -X POST "https://your-qna-service.azurewebsites.net/qna" \
+  -H "Content-Type: application/json" \
+  -d '{"input_message": "수렵보험의 보장 범위는 어떻게 되나요?"}'
+```
+
+#### 3. 새로운 보험 상품 문서 추가
+```bash
+# RAG Data Service: PDF 문서 업로드 및 벡터 처리
+curl -X POST "https://your-rag-data-service.azurewebsites.net/api/v1/documents" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "link": "https://www.hwgeneralins.com/upload/hmpag_upload/product/hunt(2506)_03.pdf",
+    "product_group": "일반보험-종합",
+    "product_name": "수렵보험",
+    "sale_period": "2025.06.30~현재",
+    "document_type": "약관"
+  }'
+```
 
 ## 🏗️ 시스템 아키텍처
 
@@ -182,144 +323,6 @@ MongoDB는 두 개의 컬렉션으로 구성되어 있습니다.
 - **GET /docs, GET /redoc**: API 문서 (Swagger UI, ReDoc)
 
 
-## 📡 API 통합 예시
-
-### 🔄 전체 상담 플로우
-
-#### 1. 음성 상담 플로우
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant F as Frontend
-    participant APIM as API Management
-    participant STT as STT Service
-    participant QnA as QnA Service
-    participant AO as Azure OpenAI
-    participant M as MongoDB Atlas
-    participant TTS as TTS Service
-    
-    U->>F: 음성으로 질문
-    F->>APIM: 오디오 파일 전송
-    APIM->>STT: STT 서비스로 라우팅
-    STT->>QnA: 변환된 텍스트 전달
-    QnA->>M: 벡터 유사도 검색 요청
-    M->>QnA: 관련 문서 청크 반환
-    QnA->>AO: GPT-4.1 mini 모델로 답변 생성 요청
-    AO->>QnA: AI 답변 반환
-    QnA->>TTS: AI 답변을 TTS로 직접 전달
-    TTS->>APIM: 음성 파일 반환
-    APIM->>F: 음성 파일 전달
-    F->>U: 음성 답변 재생
-```
-
-#### 2. 텍스트 상담 플로우
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant F as Frontend
-    participant APIM as API Management
-    participant QnA as QnA Service
-    participant AO as Azure OpenAI
-    participant M as MongoDB Atlas
-    
-    U->>F: 텍스트로 질문 입력
-    F->>APIM: 텍스트 질문 전송
-    APIM->>QnA: QnA 서비스로 라우팅
-    QnA->>M: 벡터 유사도 검색 요청
-    M->>QnA: 관련 문서 청크 반환
-    QnA->>AO: GPT-4.1 mini 모델로 답변 생성 요청
-    AO->>QnA: AI 답변 반환
-    QnA->>APIM: AI 답변 + 관련 문서
-    APIM->>F: 답변 전달
-    F->>U: 텍스트 답변 표시
-```
-
-#### 3. 문서 추가 워크플로우
-```mermaid
-sequenceDiagram
-    participant A as Admin
-    participant F as Frontend
-    participant APIM as API Management
-    participant RDS as RAG Data Service
-    participant AO as Azure OpenAI
-    participant M as MongoDB Atlas
-    participant QS as QnA Service
-    
-    A->>F: PDF 문서 URL + 메타데이터 입력
-    F->>APIM: 문서 추가 요청 전송
-    APIM->>RDS: RAG Data Service로 라우팅
-    RDS->>RDS: PDF 다운로드 및 텍스트 추출
-    RDS->>RDS: 텍스트 청크 분할
-    RDS->>AO: 각 청크의 벡터 임베딩 요청
-    AO->>RDS: 1536차원 벡터 반환
-    RDS->>M: 청크 + 벡터 + 메타데이터 저장
-    RDS->>APIM: 처리 완료 응답
-    APIM->>F: 결과 전달
-    F->>A: 처리 완료 알림
-    Note over QS: 이제 QnA Service에서<br/>새로운 문서 정보 검색 가능
-```
-
-### 📝 API 호출 예시
-
-#### 1. 음성 상담 처리
-```bash
-# 1. STT: 음성을 텍스트로 변환
-curl -X POST "https://your-stt-service.azurewebsites.net/stt/convert" \
-  -F "audio_file=@question.wav" \
-  -F "locale=ko-KR"
-
-# 2. QnA: AI 답변 생성
-curl -X POST "https://your-qna-service.azurewebsites.net/qna" \
-  -H "Content-Type: application/json" \
-  -d '{"input_message": "자동차보험료 계산 방법 알려줘"}'
-
-# 3. TTS: 답변을 음성으로 변환
-curl -X POST "https://your-tts-service.azurewebsites.net/tts/convert" \
-  -H "Content-Type: application/json" \
-  -d '{"text": "자동차보험료는 다음과 같이 계산됩니다..."}'
-
-# 4. TTS: RAG 응답을 직접 음성으로 변환
-curl -X POST "https://your-tts-service.azurewebsites.net/tts/convert-rag-response-file" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "success": true,
-    "messages": [
-      {"HumanMessage": "자동차보험료 계산 방법 알려줘"},
-      {"AIMessage": "자동차보험료는 다음과 같이 계산됩니다..."}
-    ],
-    "citations": [
-      {
-        "title": "보험료계산서.pdf", 
-        "page": 15,
-        "download_link": "https://www.hwgeneralins.com/upload/hmpag_upload/product/movable(2501)_..."
-      }
-    ]
-  }' \
-  --output rag_answer.wav
-```
-
-#### 2. 텍스트 상담 처리
-```bash
-# QnA: 텍스트 질문에 대한 AI 답변 생성
-curl -X POST "https://your-qna-service.azurewebsites.net/qna" \
-  -H "Content-Type: application/json" \
-  -d '{"input_message": "수렵보험의 보장 범위는 어떻게 되나요?"}'
-```
-
-#### 3. 새로운 보험 상품 문서 추가
-```bash
-# RAG Data Service: PDF 문서 업로드 및 벡터 처리
-curl -X POST "https://your-rag-data-service.azurewebsites.net/api/v1/documents" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "link": "https://www.hwgeneralins.com/upload/hmpag_upload/product/hunt(2506)_03.pdf",
-    "product_group": "일반보험-종합",
-    "product_name": "수렵보험",
-    "sale_period": "2025.06.30~현재",
-    "document_type": "약관"
-  }'
-```
-
 ## 🚀 설치 및 실행
 
 ### 사전 요구사항
@@ -443,4 +446,18 @@ curl https://your-tts-service.azurewebsites.net/health     # TTS Service
 > **📖 상세 MSA 아키텍처 정보**
 > 
 > **자세한 내용은 [MSA 아키텍처 보드](./msa_board.md)를 참조하세요.**
+
+---
+
+## 📄 테스트 파일
+
+### 🧪 heartsping.pdf
+테스트 및 참조용으로 사용할 수 있는 PDF 파일입니다.
+
+**GitHub Raw URL:**
+```
+https://raw.githubusercontent.com/hadonas/kt_aicc_hub/main/heartsping.pdf
+```
+
+이 URL을 통해 파일에 직접 접근하거나 API 테스트에 활용할 수 있습니다.
 
