@@ -18,7 +18,7 @@
 - [📋 API 계약 명세 요약](#-api-계약-명세-요약)
 - [📡 API 통합 예시](#-api-통합-예시)
 - [🚀 설치 및 실행](#-설치-및-실행)
-- [📊 시스템 모니터링](#-시스템-모니터링)
+- [📊 시스템 모니터링 및 장애 대응](#-시스템-모니터링-및-장애-대응)
 - [📋 ADR (Architecture Decision Records)](#-adr-architecture-decision-records)
 - [🏗️ MSA 아키텍처 보드](#️-msa-아키텍처-보드)
 
