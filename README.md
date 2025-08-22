@@ -149,18 +149,23 @@ MongoDB는 두 개의 컬렉션으로 구성되어 있습니다.
 > 
 > **🎵 TTS Service 업데이트**: RAG 응답을 음성으로 변환할 때 citations 배열의 download_link 필드를 포함하여, 음성 답변과 함께 원본 문서 다운로드 링크를 제공합니다.
 
+### 🔌 APIM을 통한 접근
+
 #### 🧠 QnA Service (APIM: /textqna)
-- **GET /textqna**: 서비스 상태 확인 (APIM)
-- **GET /textqna/health**: 상세 헬스체크 (APIM)
-- **POST /textqna/qna**: 질문-답변 처리 (RAG 기반 AI 답변 생성) (APIM)
+- **GET /textqna**: 서비스 상태 확인
+- **GET /textqna/health**: 상세 헬스체크
+- **POST /textqna/qna**: 질문-답변 처리 (RAG 기반 AI 답변 생성)
   - **📋 최신 업데이트**: citations 배열에 download_link 필드가 추가되어 원본 문서 다운로드 링크를 제공합니다.
 
 #### 📚 RAG Data Service (APIM: /data)
-- **POST /data/api/v1/documents**: PDF 문서 업로드 및 벡터 처리 (APIM)
-- **GET /api/v1/health**: 서비스 상태 확인
-- **GET /actuator/health**: Spring Boot Actuator 헬스체크
+- **POST /data/api/v1/documents**: PDF 문서 업로드 및 벡터 처리
 
-#### 🎤 TTS Service (APIM: /tts)
+#### 🎧 STT Service (APIM: /soundqna)
+- **POST /soundqna/qna**: 음성을 텍스트로 변환 (메인 엔드포인트)
+
+### 🔗 직접 서비스 접근
+
+#### 🎤 TTS Service
 - **GET /, GET /health**: 서비스 상태 확인
 - **POST /tts/convert**: 텍스트를 WAV 파일로 변환
 - **POST /tts/convert-json**: JSON 응답 형태
@@ -168,8 +173,11 @@ MongoDB는 두 개의 컬렉션으로 구성되어 있습니다.
 - **POST /tts/convert-rag-response-file**: RAG 응답을 WAV 파일로 직접 다운로드
   - **📋 최신 업데이트**: citations 배열에 download_link 필드가 추가되어 원본 문서 다운로드 링크를 제공합니다.
 
-#### 🎧 STT Service (APIM: /soundqna)
-- **POST /soundqna/qna**: 음성을 텍스트로 변환 (메인 엔드포인트) (APIM)
+#### 📚 RAG Data Service (직접 접근)
+- **GET /api/v1/health**: 서비스 상태 확인
+- **GET /actuator/health**: Spring Boot Actuator 헬스체크
+
+#### 🎧 STT Service (직접 접근)
 - **GET /health**: 서비스 상태 확인
 - **GET /docs, GET /redoc**: API 문서 (Swagger UI, ReDoc)
 
