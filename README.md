@@ -34,6 +34,7 @@
 
 ### 🌟 핵심 특징
 - **🤖 RAG 기반 답변 생성**: 벡터 검색을 통한 정확한 보험 정보 제공으로 신뢰성 높은 답변 생성
+- **🔍 하이브리드 검색 엔진**: 키워드 검색과 벡터 검색을 가중치를 적용해 결합한 혁신적인 검색 방식으로 검색 정확도 극대화
 - **🎤 음성 상담 지원**: STT(음성→텍스트) + TTS(텍스트→음성) 통합으로 접근성 향상 및 상담 효율성 증대
 - **📚 동적 데이터 관리**: PDF 업로드 시 실시간 모델 반영으로 최신 보험 상품 정보 즉시 활용 가능
 - **🔌 RESTful API 기반**: 표준화된 API로 다양한 클라이언트와의 쉬운 통합
@@ -51,6 +52,7 @@
 - **Repository**: [project03_model](https://github.com/hadonas/project03_model)
 - **목적**: 사용자 질문에 대한 AI 답변 생성 및 관련 문서 검색
 - **기술**: FastAPI, Azure OpenAI, MongoDB Atlas, LangChain
+- **🔍 검색 방식**: 키워드 검색과 벡터 검색을 가중치를 적용해 결합한 하이브리드 검색으로 검색 정확도 극대화
 - **CI/CD**: GitHub Actions 기반 자동 테스트, 빌드, 배포
 
 ### 2. **RAG Data Service** - 데이터 관리
@@ -356,6 +358,8 @@ QnA Service는 GitHub Actions 기반 CI/CD 파이프라인이 구현되어 있�
 
 ### 🔍 모니터링 아키텍처
 본 시스템은 **Azure Monitor**, **Log Analytics**, **Application Insights**를 기반으로 한 종합적인 모니터링 및 장애 대응 시스템을 제공합니다.
+
+![Application Insights 모니터링 지표](app-insight.png)
 
 #### 모니터링 구성요소
 - **Azure Monitor**: 모든 Azure 서비스의 메트릭 및 로그 수집
